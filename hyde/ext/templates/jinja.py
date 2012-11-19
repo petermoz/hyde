@@ -153,14 +153,19 @@ def restructuredtext(env, value):
         logger.error(u"Cannot load the docutils library.")
         raise TemplateError(u"Cannot load the docutils library.")
 
+    # Allow docutils settings overrides
+    overrides = {}
     highlight_source = False
     if hasattr(env.config, 'restructuredtext'):
         highlight_source = getattr(env.config.restructuredtext, 'highlight_source', False)
+        overrides.update(env.config.restructuredtext)
+        if overrides.has_key('highlight_source'):
+            del overrides['highlight_source']
 
     if highlight_source:
         import hyde.lib.pygments.rst_directive
 
-    parts = publish_parts(source=value, writer_name="html")
+    parts = publish_parts(source=value, writer_name="html", settings_overrides=overrides)
     return parts['html_body']
 
 @environmentfilter
